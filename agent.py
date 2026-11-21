@@ -185,6 +185,10 @@ def feedback(check):
     return "\n".join(lines)
 
 
+def count(n, word):
+    return f"{n} {word}" if n == 1 else f"{n} {word}s"
+
+
 def tool_result(tool_use_id, content):
     return {"type": "tool_result", "tool_use_id": tool_use_id, "content": content}
 
@@ -207,13 +211,16 @@ def run_agent(run, facts, task, writer_model, checker_model, max_revisions):
 
         results = []
         submitted = None
+        looked_up = False
         for block in response.content:
             if block.type != "tool_use":
                 continue
             if block.name == "lookup_facts":
                 output = lookup_facts(facts, block.input.get("query", ""))
                 run.log("tool_call", name="lookup_facts", input=block.input, output=output)
-                print(f"Step {run.steps}: writer looked up \"{block.input.get('query', '')}\" and got {len(output['facts'])} approved facts")
+                label = f"Step {run.steps}: writer" if not looked_up else "        Writer also"
+                print(f"{label} looked up \"{block.input.get('query', '')}\" and got {count(len(output['facts']), 'approved fact')}")
+                looked_up = True
                 results.append(tool_result(block.id, json.dumps(output)))
             elif block.name == "submit_draft":
                 submitted = block
@@ -228,9 +235,9 @@ def run_agent(run, facts, task, writer_model, checker_model, max_revisions):
             check = check_draft(run, facts, draft, fact_ids, checker_model)
             flagged = len(check["unsupported"]) + len(check["unknown_ids"])
             if check["passed"]:
-                print(f"Step {run.steps}: checker found {len(check['claims'])} claims, all supported")
+                print(f"Step {run.steps}: checker found {count(len(check['claims']), 'claim')}, all supported")
             else:
-                print(f"Step {run.steps}: checker flagged {flagged} of {len(check['claims'])} claims")
+                print(f"Step {run.steps}: checker flagged {flagged} of {count(len(check['claims']), 'claim')}")
             if check["passed"] or revisions >= max_revisions:
                 return {"draft": draft, "fact_ids": fact_ids, "check": check, "revisions": revisions}
             revisions += 1

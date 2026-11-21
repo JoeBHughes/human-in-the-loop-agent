@@ -1,20 +1,29 @@
-# Put guardrails on an AI agent before you let it publish
+# Keep a person in charge of what an AI agent publishes
 
-An agent that writes content can state things that aren't true. This reference build shows five guardrails that keep a human in charge of what goes out. A writer model drafts a short announcement from approved facts, and a second model checks every claim. The agent saves nothing as approved until a person says so.
+## What this is
+
+An AI agent is a program that uses an AI model to work through a task in several steps on its own, such as looking up facts and then writing a draft from them. Agents save time. They can also state things that aren't true, and they can do it with full confidence.
+
+This project shows one way to keep that in check. A small agent writes a product announcement, but five safety checks, often called guardrails, shape every run:
+
+- The agent can only use facts from an approved list.
+- A second AI model checks every claim in the draft against that list.
+- The agent stops after a set number of steps, so it can't run up a bill.
+- Every step goes into a log that a person can read later.
+- Nothing counts as approved until a person reads the draft and approves it.
+
+That last check is what "human in the loop" means. The agent does the work, and a person makes the final call.
 
 Independent project by Joe Hughes. Anthropic has not reviewed or endorsed this project. Lumen Notes, the product in the sample facts, is fictional.
 
-## What you'll do
+## Who this is for
 
-| Step | Time | What happens |
-|---|---|---|
-| 1. Set up | 5 minutes | Download the kit. The dry run needs no packages |
-| 2. Watch a dry run | 5 minutes | See every guardrail fire, with scripted model replies and no API key |
-| 3. Read the log | 5 minutes | Trace each step the agent took |
-| 4. Run it for real | 5 minutes | Point the agent at the Claude API |
-| 5. Use your own facts | 10 minutes | Replace the sample facts and task with yours |
+- Managers and admins can read this section and "What these guardrails don't cover" to judge whether the pattern fits their team's review process.
+- Developers can follow the five steps below. The first three need no account and cost nothing.
 
 ## How a run works
+
+The rest of this guide is hands-on. Here is what happens inside one run:
 
 1. The writer model gets a task, such as "Write a three-sentence announcement of the Lumen Notes 2.0 release."
 2. The writer looks up facts with the `lookup_facts` tool. That tool can only return facts from `facts.json`.
@@ -23,7 +32,15 @@ Independent project by Joe Hughes. Anthropic has not reviewed or endorsed this p
 5. If anything fails, the agent sends the flagged claims back to the writer for one revision.
 6. A human reviewer sees the draft and the claim check, then approves or rejects it.
 
-Every model call counts toward a step limit, and an automated logger records every step.
+Every model call counts toward the step limit, and an automated logger records every step.
+
+| Step | Time | What happens |
+|---|---|---|
+| 1. Set up | 5 minutes | Download the kit. The practice run needs no packages |
+| 2. Watch a practice run | 5 minutes | See every guardrail fire, with scripted model replies and no API key |
+| 3. Read the log | 5 minutes | Trace each step the agent took |
+| 4. Run it for real | 5 minutes | Point the agent at the Claude API |
+| 5. Use your own facts | 10 minutes | Replace the sample facts and task with yours |
 
 ## 1. Set up
 
@@ -36,13 +53,13 @@ cd human-in-the-loop-agent
 
 No Git? On the repository page, click **Code**, then **Download ZIP**. Unzip it and open a terminal in the `human-in-the-loop-agent` folder.
 
-## 2. Watch a dry run
+## 2. Watch a practice run
 
 ```bash
 python agent.py --dry-run
 ```
 
-In a dry run, a script supplies the model replies, so you can see the whole flow before you spend anything. The scripted writer makes a mistake on purpose. It says the app runs on Android, and no approved fact says that.
+The `--dry-run` option starts a practice run. A script supplies the model replies, so you can see the whole flow before you spend anything. The scripted writer makes a mistake on purpose. It says the app runs on Android, and no approved fact says that.
 
 ```text
 Dry run: a script supplies the model replies. No API calls, no cost.
@@ -109,7 +126,7 @@ python agent.py
 
 A typical run makes 3 to 5 model calls. The writer defaults to `claude-sonnet-5-5` and the checker to `claude-haiku-5-5`. Change them with `--writer-model` and `--checker-model`, using model IDs that the Models API lists today.
 
-Real models vary. Your run may pass the first claim check, or the checker may flag a claim the dry run didn't. Both outcomes show the guardrails working.
+Real models vary. Your run may pass the first claim check, or the checker may flag a claim the practice run didn't. Both outcomes show the guardrails working.
 
 ## 5. Use your own facts
 
@@ -168,7 +185,7 @@ There's no flag to skip the gate. If you add one, the agent can publish without 
 
 - Run the checker twice, or with two different models, and flag any claim they disagree on.
 - Add a style check before the gate, such as a banned-word list or a length limit.
-- Score many runs with the eval from [first-eval](https://github.com/JoeBHughes/first-eval) to see how often the first draft passes.
+- Score many runs with the scorecard from [first-eval](https://github.com/JoeBHughes/first-eval) to see how often the first draft passes.
 
 ## Files
 
