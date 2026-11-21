@@ -1,0 +1,11 @@
+{
+  "note": "Lumen Notes is a fictional product made up for this tutorial. Replace these facts with your own.",
+  "facts": [
+    {"id": "F01", "text": "Lumen Notes 2.0 releases on March 3."},
+    {"id": "F02", "text": "Lumen Notes 2.0 adds offline sync. Notes edited without a connection sync when the device reconnects."},
+    {"id": "F03", "text": "Lumen Notes 2.0 runs on Windows, macOS and iOS."},
+    {"id": "F04", "text": "Shared notebooks in Lumen Notes 2.0 hold up to 50 members, up from 10."},
+    {"id": "F05", "text": "The Lumen Notes free plan keeps its limit of 3 notebooks."},
+    {"id": "F06", "text": "Existing Lumen Notes users get version 2.0 as a free update."}
+  ]
+}
